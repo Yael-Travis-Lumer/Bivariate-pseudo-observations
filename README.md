@@ -10,3 +10,23 @@ This folder contains two files: (1) the diabetic retinopathy data as a CSV file,
 ### simulations
 This folder contains two files: (1) functions to generate the simulated data (bivariate logistic and bivariate lognormal), and (2) an example of running the simulations for the bivariate logistic data and the fixed time point selection approach (Section 3.1 of our paper).
 
+## Example - diabetic retinopathy study
+1. Load the data and the pseudo observations functions:
+```{r}
+read.csv("retinopathy_data.csv")
+source("pseudo_observations_functions.R")
+```
+
+2. Compute the pseudo-observations for the 5-year (60-month) survival probability based on the Dabrowska estimator:
+```{r}
+t0 <- c(60,60)
+obs <- PO_func_dabrowska(obs,t0)
+```
+
+3. Fit a regression model using GEE with a logit link:
+```{r}
+fit <- geese(PO~age+mean_risk+type,
+             id=id, data=obs,scale.fix=TRUE,family=gaussian,
+             jack=TRUE, mean.link="logit",corstr="independence")
+summary(fit)
+```
