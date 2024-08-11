@@ -17,16 +17,15 @@ read.csv("retinopathy_data.csv")
 source("pseudo_observations_functions.R")
 ```
 
-2. Compute the pseudo-observations for the 5-year (60-month) survival probability based on the Dabrowska estimator:
+2. Compute the pseudo-observations for the 5-year (60-month) joint survival probability based on the Dabrowska estimator:
 ```{r}
 t0 <- c(60,60)
 obs <- PO_func_dabrowska(obs,t0)
 ```
 
-3. Fit a regression model using GEE with a logit link:
+3. Fit a regression model using a GEE with a logit link:
 ```{r}
 fit <- geese(PO~age+mean_risk+type,
              id=id, data=obs,scale.fix=TRUE,family=gaussian,
              jack=TRUE, mean.link="logit",corstr="independence")
-summary(fit)
 ```
