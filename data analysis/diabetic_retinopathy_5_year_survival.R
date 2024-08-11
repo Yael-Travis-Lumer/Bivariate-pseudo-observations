@@ -1,4 +1,6 @@
 library(plotly)
+source("generate data.R")
+source("pseudo_observations_functions.R")
 
 # Load diabetic retinopathy study in wide format
 read.csv("retinopathy_data.csv")
