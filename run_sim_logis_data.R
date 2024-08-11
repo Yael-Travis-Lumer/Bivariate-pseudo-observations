@@ -3,9 +3,9 @@ library(mvtnorm)
 library(survival)
 library(tidyr)
 library(zoo)
-setwd("C:/Users/yael/OneDrive - Technion/HUJI/Code/bivariate POs/functions")
+
 source("generate data.R")
-source("PO functions for simulations.R")
+source("pseudo_observations_functions.R")
 
 ###-----Set parameter values and sample the univariate covariate-----
 a1 <- 1
