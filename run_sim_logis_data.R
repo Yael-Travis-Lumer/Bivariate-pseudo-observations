@@ -98,26 +98,3 @@ for (i in 1:m){
 #save results
 save(betas_df_LY, var_betas_df_LY, est_S_logit_list_LY, file="logistic_model_grid_points_LY_500.Rdata")
 save(betas_df_Dab, var_betas_df_Dab ,est_S_logit_list_Dab, file="logistic_model_grid_points_Dab_500.Rdata")
-
-library(data.table)
-var_LY <-  rbindlist(var_betas_df_LY)
-var_beta1_LY <- var_LY[(1:m)*7,7]
-colnames(var_beta1_LY) <- "var_beta1"
-se_beta1_LY <- sqrt(var_beta1_LY)
-summary(se_beta1_LY)
-round(sqrt(mean(var_beta1_LY$var_beta1)),2) #square root of average estimated variance (as in Anderson 2003)
-round(mean(se_beta1_LY$var_beta1),2) #average of square root of estimated variances (as in Jacobsen and Martinussen 2016)
-CI_LY <- data.frame(lower=betas_df_LY$Z-1.96*se_beta1_LY$var_beta1,upper=betas_df_LY$Z+1.96*se_beta1_LY$var_beta1)
-CI_LY$indicator <- beta>CI_LY$lower & beta<CI_LY$upper
-summary(CI_LY)
-
-var_Dab <-  rbindlist(var_betas_df_Dab)
-var_beta1_Dab <- var_Dab[(1:m)*7,7]
-colnames(var_beta1_Dab) <- "var_beta1"
-se_beta1_Dab <- sqrt(var_beta1_Dab)
-summary(se_beta1_Dab)
-round(sqrt(mean(var_beta1_Dab$var_beta1)),2)
-round(mean(se_beta1_Dab$var_beta1),2)
-CI_Dab <- data.frame(lower=betas_df_Dab$Z-1.96*se_beta1_Dab$var_beta1,upper=betas_df_Dab$Z+1.96*se_beta1_Dab$var_beta1)
-CI_Dab$indicator <- beta>CI_Dab$lower & beta<CI_Dab$upper
-summary(CI_Dab)
