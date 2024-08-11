@@ -37,11 +37,6 @@ betas_df_LY <- data.frame(matrix(NA,m,1+nrow(t0)))
 colnames(betas_df_LY) <- c(paste0("beta0_",1:nrow(t0),""),"Z")
 betas_df_Dab <- betas_df_LY
 var_betas_df_Dab <- var_betas_df_LY <- list(m)
-est_S_logit_list_LY <- list(m)
-est_S_logit_list_Dab <- est_S_logit_list_LY
-est_S_logit_LY <- matrix(0,n,nrow(t0))
-colnames(est_S_logit_LY) <- paste0("S_hat_",1:nrow(t0),"")
-est_S_logit_Dab <- est_S_logit_LY
 
 for (i in 1:m){
   #generate data
@@ -78,23 +73,9 @@ for (i in 1:m){
   betas_df_Dab[i,] <- betas_Dab
   var_betas_df_LY[[i]] <- data.frame(var_betas_LY)
   var_betas_df_Dab[[i]] <- data.frame(var_betas_Dab)
-  
-  
-  #calculate the estimated conditional joint survival for each time point and for each type of estimator
-    for (j in 1:nrow(t0)){
-      if (j>1){
-        est_S_logit_LY[,j] <- exp(betas_LY[1]+betas_LY[j]+betas_LY[nrow(t0)+1]*Z)/(1+exp(betas_LY[1]+betas_LY[j]+betas_LY[nrow(t0)+1]*Z))
-        est_S_logit_Dab[,j] <- exp(betas_Dab[1]+betas_Dab[j]+betas_Dab[nrow(t0)+1]*Z)/(1+exp(betas_Dab[1]+betas_Dab[j]+betas_Dab[nrow(t0)+1]*Z))
-      } else {
-        est_S_logit_LY[,j] <- exp(betas_LY[1]+betas_LY[nrow(t0)+1]*Z)/(1+exp(betas_LY[1]+betas_LY[nrow(t0)+1]*Z))
-        est_S_logit_Dab[,j] <- exp(betas_Dab[1]+betas_Dab[nrow(t0)+1]*Z)/(1+exp(betas_Dab[1]+betas_Dab[nrow(t0)+1]*Z))
-      }
-    }
-    est_S_logit_list_LY[[i]] <- est_S_logit_LY
-    est_S_logit_list_Dab[[i]] <- est_S_logit_Dab
-  
+
 }
 
 #save results
-save(betas_df_LY, var_betas_df_LY, est_S_logit_list_LY, file="logistic_model_grid_points_LY_500.Rdata")
-save(betas_df_Dab, var_betas_df_Dab ,est_S_logit_list_Dab, file="logistic_model_grid_points_Dab_500.Rdata")
+save(betas_df_LY, var_betas_df_LY, file="logistic_model_fixed_points_LY_500.Rdata")
+save(betas_df_Dab, var_betas_df_Dab, file="logistic_model_fixed_points_Dab_500.Rdata")
