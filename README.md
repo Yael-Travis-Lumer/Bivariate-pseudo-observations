@@ -8,7 +8,7 @@ Additionally, this repository contains two folders, one folder for the data anal
 ### data analysis
 This folder contains two files: (1) the diabetic retinopathy data as a CSV file, and (2) the code for calculating the covariate-adjusted 5-year joint survival probability based on the proposed approach (Section 4 of our paper).
 ### simulations
-This folder contains two files: (1) functions to generate the simulated data (bivariate logistic and bivariate lognormal), and (2) an example of running the simulations for the bivariate logistic data and the fixed time point selection approach (Section 3.1 of our paper).
+This folder contains two files: (1) functions to generate the simulated data (bivariate logistic and bivariate lognormal), and (2) an example of running the simulations for the bivariate logistic data and the fixed time point selection approach (Section 3.1 of our paper). Additional simulation settings can be derived similarly.
 
 ## Example - diabetic retinopathy study
 1. Load the data and the pseudo observations functions:
