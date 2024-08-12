@@ -13,6 +13,7 @@ This folder contains two files: (1) functions to generate the simulated data (bi
 ## Example - diabetic retinopathy study
 1. Load the data and the pseudo observations functions:
 ```{r}
+library(geepack)
 obs <- read.csv("retinopathy_data.csv")
 source("pseudo_observations_functions.R")
 ```
