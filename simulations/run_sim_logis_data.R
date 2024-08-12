@@ -3,6 +3,7 @@ library(mvtnorm)
 library(survival)
 library(tidyr)
 library(zoo)
+library(geepack)
 
 source("generate data.R")
 source("pseudo_observations_functions.R")
