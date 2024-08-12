@@ -1,4 +1,5 @@
 library(plotly)
+library(geepack)
 source("pseudo_observations_functions.R")
 
 # Load diabetic retinopathy study in wide format
