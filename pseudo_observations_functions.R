@@ -5,7 +5,7 @@ library(survival)
 
 ###----POs for the Dabrowska estimator at a single time point----------
 # obs: a data frame containing the observed times (obs1,obs2) and their corresponding indicators (delta1,delta2)
-# t0: a single bivariate time point
+# t0: a single bivariate time point of the form c(t1,t2)
 PO_func_dabrowska <- function(obs,t0){
   n <- nrow(obs)
   #compute the estimate for the bi-variate survival
