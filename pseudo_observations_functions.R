@@ -4,6 +4,8 @@ library(Rfast)
 library(survival)
 
 ###----POs for the Dabrowska estimator at a single time point----------
+# obs: a data frame containing the observed times (obs1,obs2) and their corresponding indicators (delta1,delta2)
+# t0: a single bivariate time point
 PO_func_dabrowska <- function(obs,t0){
   n <- nrow(obs)
   #compute the estimate for the bi-variate survival
@@ -23,6 +25,8 @@ PO_func_dabrowska <- function(obs,t0){
 
 
 ###----POs for the Dabrowska estimator at multiple time points----------
+# obs: a data frame containing the observed times (obs1,obs2) and their corresponding indicators (delta1,delta2)
+# t0: a data frame of size (K*2) with K bivariate time point. The two columns correspond to the two coordinates (t1,t2), and each of the K rows corresponds to a different time point.
 PO_func_dabrowska_mult_new <- function(obs,t0){
   n <- nrow(obs)
   old_name <- colnames(obs)
@@ -134,6 +138,8 @@ PO_func_dabrowska_mult_new <- function(obs,t0){
 
 
 ###--------POs for the Lin and Ying estimator----------
+# obs: a data frame containing the observed times (obs1,obs2) and their corresponding indicators (delta1,delta2)
+# t0: a data frame of size (K*2) with K bivariate time point. The two columns correspond to the two coordinates (t1,t2), and each of the K rows corresponds to a different time point.
 joint_surv_PO_mult <- function(obs, t0){
   old_name <- colnames(obs)
   m <- ncol(obs)
@@ -168,6 +174,8 @@ joint_surv_PO_mult <- function(obs, t0){
 
 
 ###--------POs for the Lin and Ying estimator adjusted for bivariate censoring----------
+# obs: a data frame containing the observed times (obs1,obs2) and their corresponding indicators (delta1,delta2)
+# t0: a data frame of size (K*2) with K bivariate time point. The two columns correspond to the two coordinates (t1,t2), and each of the K rows corresponds to a different time point.
 PO_func_bivar_cens_mult <- function(obs,t0){
   old_names <- colnames(obs)
   p <- ncol(obs)
