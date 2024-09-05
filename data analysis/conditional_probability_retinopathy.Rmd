@@ -1,0 +1,105 @@
+---
+title: "<center> Analyzing the diabeteic retinopathy dataset using bivariate pseudo-observations <br> The effect of covariates on conditional probabilities"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# Goal
+
+Consider the time to blindness of both eyes in diabetic patients, where one eye is randomly assigned to laser treatment and the other eye serves as a control. Let $T_1$ and $T_2$ denote the true failure times (in months) of the treated and untreated eye in the diabeteic retinopathy dataset. Our goal here is to estimate the conditional survival of the treated eye ($T_1$) conditional on either failure or survival of the untreated eye ($T_2$). Specifically, we estimate both $P(T_1>60 \mid T_2\leq 36, Z)$ and $P(T_1>60 \mid T_2> 36, Z)$ using the bivariate pseudo-observations approach. That is, we are interested in the conditional probability that the treated eye survives more than five years, given that the untreated eye has either failed or survived during the first three years, given the covariates.
+
+For this purpose, we use our bivariate pseudo-observations approach based on the Dabrowska estimator, and the logit link function, to estimate the covariate-adjusted bivariate survival probabilities at the three time points $\{(60,36), (60,0), (0,36)\}$. Consequently, we obtain estimates of the two conditional probabilities $S_{T_1| T_2\leq 36}(60\mid Z)$ and $S_{T_1| T_2>36}(60\mid Z)$ using the relationships:
+\begin{align*}
+S_{T_1| T_2\leq 36}(60\mid Z)&=P(T_1>60 \mid T_2\leq 36, Z)=1-\frac{S(60,36 \mid Z)-S(60,0 \mid Z)-S(0,36 \mid Z)+1}{1-S(0,36 \mid Z)}, \\
+	S_{T_1| T_2>36}(60\mid Z)&=P(T_1>60 \mid T_2> 36, Z)=\frac{S(60,36 \mid Z)}{S(0,36 \mid Z)}.
+\end{align*}
+
+# Data analysis
+
+## Load relevant R libraries and the bivaraite pseudo-observations functions
+
+```{r prem, echo=T, message=FALSE, warning=FALSE}
+library(tidyr)
+library(plotly)
+source("pseudo_observations_functions.R")
+```
+
+## Load the diabetic retinopaty dataset
+
+Read the dataset (in wide format).
+```{r data}
+obs <- read.csv("retinopathy_data.csv")
+head(obs)
+```
+Note that obs1 and obs2 corresponds to the observed times (in months) of the treated and untreated eye, respectively.
+
+## Define the bivariate time points and calculate the pseudo-observations at these time points 
+```{r PO2}
+t0 <- data.frame(t1=c(60,60,0),t2=c(36,0,36))
+t0_merged <- paste0(t0[,1],",",t0[,2], sep = "")
+obs <- PO_func_dabrowska_mult_new(obs,t0)
+head(obs)
+```
+
+## Convert the data into a long format where each patient now has K=3 rows
+```{r long2}
+n <- nrow(obs)
+obs_long <- pivot_longer(obs,cols = starts_with("PO_t"))
+obs_long$times <- rep(t0_merged,n)
+head(obs_long,n = 9)
+```
+
+## Fit the bivariate proportional odds model (i.e. logistic regression model)
+```{r fit2}
+set.seed(123)
+fit <- geese(value~factor(times, levels=t0_merged)+age+mean_risk+type,
+                id=id, data=obs_long,scale.fix=TRUE,family=gaussian,
+                jack=TRUE, mean.link="logit",corstr="independence",)
+betas <- fit$beta
+summary(fit)
+```
+
+## Calculate the predicted values at each of the three bivariate time points
+```{r}
+des_mat <- model.matrix(value~factor(times, levels=t0_merged)+age+mean_risk+type, data = obs_long)
+pred_values <- data.frame('Estimated survival'=exp(des_mat%*%betas)/(1+exp(des_mat%*%betas)),type=obs_long$type, Z=obs_long$age, X=obs_long$mean_risk, time=obs_long$times)
+pred_1 <- pred_values[pred_values$time=="60,36",]
+pred_2 <- pred_values[pred_values$time=="60,0",]
+pred_3 <- pred_values[pred_values$time=="0,36",]
+```
+
+## Calculate $P(T_1>60 \mid T_2\leq 36, Z)$
+```{r}
+cond_prob1 <- pred_1
+cond_prob1$Estimated.survival <- 1-(pred_1$Estimated.survival-pred_2$Estimated.survival-pred_3$Estimated.survival+1)/(1-pred_3$Estimated.survival)
+```
+
+## Plot $P(T_1>60 \mid T_2\leq 36, Z)$
+```{r}
+cond_prob1 <- cond_prob1[order(cond_prob1$Z,cond_prob1$X),]
+p <- plot_ly(x=cond_prob1$Z, y=cond_prob1$X, z=cond_prob1$Estimated.survival, type="scatter3d", mode="markers",color = cond_prob1$Estimated.survival)
+p <- layout(p, scene = list(xaxis = list(title = "Age at diagnosis", range = c(0,60)), yaxis = list(title = "Risk score", range = c(6,12)), zaxis = list(title = "P(T1>5|T2<3)",range = c(0,1))))
+p
+```
+As can be seen in this interactive figure, the covariate-adjusted conditional probability $P(T_1>60 \mid T_2\leq 36, Z)$ ranges between 0.5 and 0.77, meaning that even if the untreated eye failed during the first three years, the treated eye still has a relatively high chance to survive more than five years. Additionally, this conditional survival probability of the treated eye is highest as the risk score is lowest, and it decreases as the risk score increases. Age at diagnosis of diabetes seems to also have some effect on this conditional survival probability, which decreases as age at diagnosis increases.
+
+## Calculate $P(T_1>60 \mid T_2> 36, Z)$
+```{r}
+cond_prob2 <- pred_1
+cond_prob2$Estimated.survival <- pred_1$Estimated.survival/pred_3$Estimated.survival
+```
+
+## Plot $P(T_1>60 \mid T_2> 36, Z)$
+```{r}
+cond_prob2 <- cond_prob2[order(cond_prob2$Z,cond_prob2$X),]
+p <- plot_ly(x=cond_prob2$Z, y=cond_prob2$X, z=cond_prob2$Estimated.survival, type="scatter3d", mode="markers",color = cond_prob2$Estimated.survival)
+p <- layout(p, scene = list(xaxis = list(title = "Age at diagnosis", range = c(0,60)), yaxis = list(title = "Risk score", range = c(6,12)), zaxis = list(title = "P(T1>5|T2>3)",range = c(0,1))))
+p
+```
+As can be seen in this interactive figure, the covariate-adjusted conditional probability $P(T_1>60 \mid T_2> 36, Z)$ ranges between 0.73 and 0.84, meaning that when the untreated eye survives for more than three years, the treated eye has a very high chance to survive more than five years. Interestingly, this conditional survival probability remains high even when the age at diagnosis increases, and is almost not affected by the age at diagnosis. However, this conditional probability does decrease as the risk score increases, yet this effect is less substantial than before (when compared to the case where $T_2\leq 36$).
+
+## Summary
+
+In summary, when the untreated eye survives for more than three years, the probability that the treated eye will survive more than five years is very high and is almost not affected by the covariates. However, when the untreated eye fails during the first three years, the probability that the treated eye will survive more than five years is highest when the risk score is lowest and when age at diagnosis is lowest, and it decreases both as a function of age at diagnosis and risk score.
