@@ -29,4 +29,5 @@ obs <- PO_func_dabrowska(obs,t0)
 fit <- geese(PO~age+mean_risk+type,
              id=id, data=obs,scale.fix=TRUE,family=gaussian,
              jack=TRUE, mean.link="logit",corstr="independence")
+summary(fit)
 ```
