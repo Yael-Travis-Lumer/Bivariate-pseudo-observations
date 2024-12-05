@@ -12,7 +12,7 @@ Consider the time to blindness of both eyes in diabetic patients, where one eye 
 
 For this purpose, we use our bivariate pseudo-observations approach based on the Dabrowska estimator, and the logit link function, to estimate the covariate-adjusted bivariate survival probabilities at the three time points $\{(60,36), (60,0), (0,36)\}$. Consequently, we obtain estimates of the two conditional probabilities $S_{T_1| T_2\leq 36}(60\mid Z)$ and $S_{T_1| T_2>36}(60\mid Z)$ using the relationships:
 \begin{align*}
-S_{T_1| T_2\leq 36}(60\mid Z)&=P(T_1>60 \mid T_2\leq 36, Z)=1-\frac{S(60,36 \mid Z)-S(60,0 \mid Z)-S(0,36 \mid Z)+1}{1-S(0,36 \mid Z)}, \\
+S_{T_1| T_2\leq 36}(60\mid Z)&=P(T_1>60 \mid T_2\leq 36, Z)=\frac{S(60,0 \mid Z)-S(60,36 \mid Z)}{1-S(0,36 \mid Z)}, \\
 	S_{T_1| T_2>36}(60\mid Z)&=P(T_1>60 \mid T_2> 36, Z)=\frac{S(60,36 \mid Z)}{S(0,36 \mid Z)}.
 \end{align*}
 
@@ -73,7 +73,7 @@ pred_3 <- pred_values[pred_values$time=="0,36",]
 ## Calculate $P(T_1>60 \mid T_2\leq 36, Z)$
 ```{r}
 cond_prob1 <- pred_1
-cond_prob1$Estimated.survival <- 1-(pred_1$Estimated.survival-pred_2$Estimated.survival-pred_3$Estimated.survival+1)/(1-pred_3$Estimated.survival)
+cond_prob1$Estimated.survival <- (pred_2$Estimated.survival-pred_1$Estimated.survival)/(1-pred_3$Estimated.survival)
 ```
 
 ## Plot $P(T_1>60 \mid T_2\leq 36, Z)$
